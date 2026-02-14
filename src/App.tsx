@@ -1,6 +1,7 @@
 import { TdlEditor } from './components/TdlEditor';
 import { ProblemsPanel } from './components/ProblemsPanel';
 import { DocumentOutline } from './components/DocumentOutline';
+import { ExportImportToolbar } from './components/ExportImportToolbar';
 
 export default function App() {
   return (
@@ -16,6 +17,8 @@ export default function App() {
           </span>
         </div>
         <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <ExportImportToolbar />
+          <span className="border-l border-zinc-700 h-4 mx-1" />
           <span>⚠️ Training / Configuration Tool Only — No Classified Data</span>
         </div>
       </header>
