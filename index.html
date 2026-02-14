@@ -3,10 +3,311 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TDL Config Editor</title>
+    <title>TDL Config Editor — Tactical Data Link Configuration for Link 16 &amp; Link 22</title>
+    <meta name="description" content="Free browser-based editor for Tactical Data Link configurations. Build, validate, and audit Link 16 (MIL-STD-6016) and Link 22 (STANAG 5522) network designs with real-time diagnostics." />
+    <meta name="keywords" content="tactical data link, Link 16, Link 22, MIL-STD-6016, STANAG 5522, TDL configuration, network design, military communications, MIDS, JTIDS, NPG, J-series messages, interoperability, NATO, defence" />
+    <link rel="canonical" href="https://tdl-config-editor.dev/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TDL Config Editor — Link 16 &amp; Link 22 Configuration Tool" />
+    <meta property="og:description" content="Build, validate, and audit Tactical Data Link configurations in the browser. Supports MIL-STD-6016 and STANAG 5522 with real-time spec-aware diagnostics." />
+    <meta property="og:url" content="https://tdl-config-editor.dev/" />
+    <meta property="og:site_name" content="TDL Config Editor" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TDL Config Editor — Link 16 &amp; Link 22" />
+    <meta name="twitter:description" content="Free browser-based editor for Tactical Data Link configurations with real-time validation against MIL-STD-6016 and STANAG 5522." />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "TDL Config Editor",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any (browser-based)",
+      "description": "Browser-based editor for Tactical Data Link (TDL) configurations supporting Link 16 (MIL-STD-6016) and Link 22 (STANAG 5522) with real-time validation, syntax highlighting, and spec-aware diagnostics.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Link 16 (MIL-STD-6016) configuration",
+        "Link 22 (STANAG 5522) configuration",
+        "Real-time syntax and semantic validation",
+        "Domain-level spec validation (NPGs, J-messages, track numbers)",
+        "Monaco-based code editor with autocomplete",
+        "Runs entirely in the browser — no server required",
+        "Document outline and problems panel"
+      ]
+    }
+    </script>
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      :root {
+        --zinc-50: #fafafa; --zinc-100: #f4f4f5; --zinc-200: #e4e4e7;
+        --zinc-300: #d4d4d8; --zinc-400: #a1a1aa; --zinc-500: #71717a;
+        --zinc-600: #52525b; --zinc-700: #3f3f46; --zinc-800: #27272a;
+        --zinc-900: #18181b; --zinc-950: #09090b;
+        --blue-400: #60a5fa; --blue-500: #3b82f6; --blue-600: #2563eb;
+        --green-400: #4ade80; --amber-400: #fbbf24; --purple-400: #c084fc;
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--zinc-950); color: var(--zinc-100);
+        line-height: 1.6; -webkit-font-smoothing: antialiased;
+      }
+      a { color: var(--blue-400); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      /* Nav */
+      .nav { position: sticky; top: 0; z-index: 50; background: rgba(9,9,11,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--zinc-800); }
+      .nav-inner { max-width: 1200px; margin: 0 auto; padding: .75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+      .nav-brand { font-weight: 700; font-size: 1.125rem; letter-spacing: -.025em; }
+      .nav-brand span { color: var(--blue-400); }
+      .nav-links { display: flex; gap: 2rem; font-size: .875rem; color: var(--zinc-400); }
+      .nav-links a:hover { color: var(--zinc-100); text-decoration: none; }
+
+      /* Hero */
+      .hero { max-width: 1200px; margin: 0 auto; padding: 6rem 1.5rem 4rem; text-align: center; }
+      .hero-badge { display: inline-block; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--blue-400); background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.2); padding: .25rem .75rem; border-radius: 9999px; margin-bottom: 1.5rem; }
+      .hero h1 { font-size: clamp(2.25rem, 5vw, 3.75rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.1; margin-bottom: 1.5rem; }
+      .hero h1 .accent { color: var(--blue-400); }
+      .hero .subtitle { font-size: 1.25rem; color: var(--zinc-400); max-width: 700px; margin: 0 auto 2.5rem; }
+      .hero-cta { display: inline-flex; align-items: center; gap: .5rem; background: var(--blue-600); color: #fff; font-weight: 600; font-size: 1.125rem; padding: .875rem 2rem; border-radius: .5rem; transition: background .15s; }
+      .hero-cta:hover { background: var(--blue-500); text-decoration: none; }
+      .hero-secondary { display: inline-flex; align-items: center; gap: .5rem; color: var(--zinc-400); font-size: .875rem; margin-left: 1rem; }
+      .hero-secondary:hover { color: var(--zinc-100); text-decoration: none; }
+
+      /* Code preview */
+      .code-preview { max-width: 780px; margin: 3rem auto 0; background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: .75rem; overflow: hidden; text-align: left; }
+      .code-bar { display: flex; align-items: center; gap: .5rem; padding: .625rem 1rem; background: var(--zinc-800); border-bottom: 1px solid var(--zinc-700); }
+      .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+      .code-dot.r { background: #ef4444; } .code-dot.y { background: #eab308; } .code-dot.g { background: #22c55e; }
+      .code-bar span { margin-left: .5rem; font-size: .75rem; color: var(--zinc-500); }
+      .code-preview pre { padding: 1.25rem 1.5rem; font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; font-size: .8rem; line-height: 1.7; overflow-x: auto; }
+      .cm { color: var(--zinc-500); } .kw { color: var(--purple-400); } .st { color: var(--green-400); }
+      .id { color: var(--blue-400); } .nm { color: var(--amber-400); }
+
+      /* Features */
+      .features { max-width: 1200px; margin: 0 auto; padding: 5rem 1.5rem; }
+      .features h2 { font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: .75rem; letter-spacing: -.025em; }
+      .features .lead { text-align: center; color: var(--zinc-400); max-width: 600px; margin: 0 auto 3rem; }
+      .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+      .feature-card { background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: .75rem; padding: 1.75rem; }
+      .feature-icon { font-size: 1.75rem; margin-bottom: .75rem; }
+      .feature-card h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: .5rem; }
+      .feature-card p { font-size: .875rem; color: var(--zinc-400); line-height: 1.6; }
+
+      /* Standards */
+      .standards { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+      .standards h2 { font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: .75rem; letter-spacing: -.025em; }
+      .standards .lead { text-align: center; color: var(--zinc-400); max-width: 600px; margin: 0 auto 3rem; }
+      .std-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+      .std-card { background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: .75rem; padding: 2rem; }
+      .std-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
+      .std-card .spec { font-size: .75rem; color: var(--blue-400); margin-bottom: 1rem; }
+      .std-card ul { list-style: none; padding: 0; }
+      .std-card li { font-size: .875rem; color: var(--zinc-400); padding: .25rem 0; }
+      .std-card li::before { content: '\2713  '; color: var(--green-400); font-weight: 700; }
+
+      /* Use cases */
+      .usecases { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+      .usecases h2 { font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: .75rem; letter-spacing: -.025em; }
+      .usecases .lead { text-align: center; color: var(--zinc-400); max-width: 600px; margin: 0 auto 3rem; }
+      .uc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+      .uc-card { text-align: center; padding: 2rem 1.5rem; background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: .75rem; }
+      .uc-card .uc-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+      .uc-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+      .uc-card p { font-size: .8125rem; color: var(--zinc-400); }
+
+      /* CTA */
+      .cta-section { text-align: center; padding: 5rem 1.5rem; }
+      .cta-section h2 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -.025em; }
+      .cta-section p { color: var(--zinc-400); margin-bottom: 2rem; }
+
+      /* Footer */
+      footer { border-top: 1px solid var(--zinc-800); padding: 2rem 1.5rem; text-align: center; font-size: .8125rem; color: var(--zinc-600); }
+
+      @media (max-width: 640px) {
+        .std-grid { grid-template-columns: 1fr; }
+        .hero-secondary { display: block; margin: 1rem 0 0; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Navigation -->
+    <nav class="nav" aria-label="Main navigation">
+      <div class="nav-inner">
+        <div class="nav-brand"><span>TDL</span> Config Editor</div>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#standards">Standards</a>
+          <a href="#use-cases">Use Cases</a>
+          <a href="editor.html">Launch Editor</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badge">Free &amp; Open Source &#8212; Runs in Your Browser</div>
+      <h1>
+        Configure <span class="accent">Tactical Data Links</span><br />
+        Without the Pain
+      </h1>
+      <p class="subtitle">
+        A purpose-built editor for Link&nbsp;16 and Link&nbsp;22 network configurations.
+        Real-time validation against MIL-STD-6016 and STANAG&nbsp;5522.
+        No install, no server, no classified data risk.
+      </p>
+      <a href="editor.html" class="hero-cta">Open the Editor &#8594;</a>
+      <a href="#features" class="hero-secondary">Learn more &#8595;</a>
+
+      <!-- Code preview -->
+      <div class="code-preview" role="img" aria-label="Example TDL configuration syntax">
+        <div class="code-bar">
+          <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+          <span>network.tdl</span>
+        </div>
+<pre><span class="cm">-- Link 16 Network Design</span>
+<span class="kw">network</span> <span class="st">"ALPHA"</span> {
+  <span class="kw">link</span>: <span class="id">Link16</span>
+  <span class="kw">classification</span>: <span class="id">SECRET</span>
+
+  <span class="kw">terminal</span> <span class="st">"AWACS-1"</span> {
+    <span class="kw">track_number</span>: <span class="nm">01400</span>
+    <span class="kw">platform_type</span>: <span class="id">E3A</span>
+    <span class="kw">role</span>: <span class="id">NetControlStation</span>
+    <span class="kw">subscribes</span>: [<span class="id">NPG_A</span>, <span class="id">NPG_9</span>]
+    <span class="kw">transmits</span>:  [<span class="id">NPG_A</span>, <span class="id">NPG_9</span>]
+  }
+
+  <span class="kw">messages</span> {
+    <span class="id">J3/2</span> { <span class="kw">enabled</span>: <span class="nm">true</span>, <span class="kw">npg</span>: <span class="id">NPG_9</span> }
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+      <h2>Built for TDL Professionals</h2>
+      <p class="lead">Everything you need to design, validate, and review tactical data link configurations &#8212; in one tool.</p>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">&#128269;</div>
+          <h3>Real-Time Validation</h3>
+          <p>Three levels of checking &#8212; syntax, semantic, and domain &#8212; run as you type. Catch invalid NPG assignments, duplicate track numbers, TSDF budget overruns, and unknown J-series messages instantly.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">&#128221;</div>
+          <h3>Purpose-Built DSL</h3>
+          <p>A clean, readable language that mirrors the TDL domain model. No XML, no binary formats &#8212; just structured text that humans can read, review, and version-control.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">&#9889;</div>
+          <h3>Intelligent Autocomplete</h3>
+          <p>Context-aware suggestions for NPGs, J-messages, platform types, roles, and classification levels. Hover any keyword for spec references back to MIL-STD-6016 or STANAG 5522.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">&#128274;</div>
+          <h3>100% Client-Side</h3>
+          <p>Everything runs in your browser. No data leaves your machine. No server, no account, no telemetry. Deploy it on an air-gapped network if you need to.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">&#128202;</div>
+          <h3>Document Outline</h3>
+          <p>Navigate complex multi-network configurations with the sidebar outline. Click any network, terminal, net, or subnetwork to jump straight to it in the editor.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">&#128737;</div>
+          <h3>Spec-Aware Diagnostics</h3>
+          <p>Every validation error links to the relevant section of MIL-STD-6016 or STANAG 5522. Know exactly why a configuration is invalid and what the standard requires.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Standards -->
+    <section class="standards" id="standards">
+      <h2>Two Standards, One Editor</h2>
+      <p class="lead">Full support for the two primary NATO tactical data link standards used across allied forces.</p>
+      <div class="std-grid">
+        <article class="std-card">
+          <h3>Link 16</h3>
+          <div class="spec">MIL-STD-6016 &#8212; JTIDS / MIDS</div>
+          <ul>
+            <li>Terminal configuration (NCS, Participant, Relay, Forward Tell)</li>
+            <li>Network Participation Groups (NPG_A through NPG_27)</li>
+            <li>J-series message catalog (J0/0 &#8211; J28/2) with NPG assignment validation</li>
+            <li>Time Slot Duty Factor budgeting with stacking support</li>
+            <li>Track number uniqueness and PPLI requirements</li>
+            <li>Net definitions with participant reference checking</li>
+            <li>Inbound/outbound message filtering with conditions</li>
+          </ul>
+        </article>
+        <article class="std-card">
+          <h3>Link 22</h3>
+          <div class="spec">STANAG 5522</div>
+          <ul>
+            <li>Subnetwork and member configuration</li>
+            <li>Operating modes: Net-Slotted, Contention, Hybrid</li>
+            <li>Data rates: Low, Medium, High</li>
+            <li>Controller and Participant roles</li>
+            <li>Hex unit ID assignment with uniqueness checking</li>
+            <li>Forwarding configuration validation</li>
+            <li>Multi-subnetwork dual-membership support</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="usecases" id="use-cases">
+      <h2>Who Is This For?</h2>
+      <p class="lead">From the classroom to the operations centre, TDL Config Editor makes configuration accessible.</p>
+      <div class="uc-grid">
+        <article class="uc-card">
+          <div class="uc-icon">&#127891;</div>
+          <h3>Training &amp; Education</h3>
+          <p>Teach TDL concepts with an interactive editor that gives immediate feedback. Students see validation errors in real time as they learn the standards.</p>
+        </article>
+        <article class="uc-card">
+          <div class="uc-icon">&#128203;</div>
+          <h3>Design &amp; Planning</h3>
+          <p>Draft network designs before committing to formal planning tools. Validate NPG allocations, TSDF budgets, and message assignments early in the process.</p>
+        </article>
+        <article class="uc-card">
+          <div class="uc-icon">&#128270;</div>
+          <h3>Review &amp; Audit</h3>
+          <p>Use a readable, text-based format to review configurations. Diff changes in version control. Catch errors that slip through manual review.</p>
+        </article>
+        <article class="uc-card">
+          <div class="uc-icon">&#129514;</div>
+          <h3>Exercise Preparation</h3>
+          <p>Build and validate configurations for joint exercises. Export-ready designs with spec-compliant structure for Link 16 and Link 22 networks.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Ready to Try It?</h2>
+      <p>No sign-up required. No install. Just open the editor and start building.</p>
+      <a href="editor.html" class="hero-cta">Launch the Editor &#8594;</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>TDL Config Editor &#8212; Apache 2.0 + Commons Clause</p>
+      <p style="margin-top:.5rem">Training and configuration tool only. Not for use with classified data.</p>
+    </footer>
+
   </body>
 </html>
