@@ -8,9 +8,9 @@ export default function App() {
       {/* Top Bar */}
       <header className="flex items-center justify-between px-4 py-2 bg-zinc-800 border-b border-zinc-700 shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-bold tracking-tight">
+          <a href={import.meta.env.BASE_URL} className="text-lg font-bold tracking-tight hover:opacity-80 transition-opacity">
             <span className="text-blue-400">TDL</span> Config Editor
-          </h1>
+          </a>
           <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded">
             Link 16 / Link 22
           </span>
