@@ -12,19 +12,18 @@ export function ProblemsPanel() {
 
   return (
     <div className="h-full flex flex-col bg-zinc-900 text-zinc-300 text-sm">
-      {/* Header */}
-      <div className="flex items-center gap-4 px-3 py-1.5 border-b border-zinc-700 bg-zinc-800 shrink-0">
-        <span className="font-semibold text-zinc-200">PROBLEMS</span>
-        <span className="flex items-center gap-1">
+      {/* Status bar */}
+      <div className="flex items-center gap-3 px-3 py-1 border-b border-zinc-700/50 shrink-0">
+        <span className="flex items-center gap-1 text-xs">
           <span className="text-red-400">⬤</span>
           <span>{errors.length}</span>
         </span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 text-xs">
           <span className="text-yellow-400">⬤</span>
           <span>{warnings.length}</span>
         </span>
         {infos.length > 0 && (
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1 text-xs">
             <span className="text-blue-400">⬤</span>
             <span>{infos.length}</span>
           </span>

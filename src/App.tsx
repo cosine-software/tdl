@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { TdlEditor } from './components/TdlEditor';
 import { ProblemsPanel } from './components/ProblemsPanel';
 import { DocumentOutline } from './components/DocumentOutline';
 import { ExportImportToolbar } from './components/ExportImportToolbar';
+import { TsdfVisualization } from './components/TsdfVisualization';
 
 export default function App() {
+  const [bottomTab, setBottomTab] = useState<'problems' | 'tsdf'>('problems');
+
   return (
     <div className="h-screen w-screen flex flex-col bg-zinc-900 text-zinc-100 overflow-hidden">
       {/* Top Bar */}
@@ -37,9 +41,36 @@ export default function App() {
             <TdlEditor />
           </div>
 
-          {/* Problems panel */}
-          <div className="h-48 border-t border-zinc-700 shrink-0 overflow-hidden">
-            <ProblemsPanel />
+          {/* Bottom panel with tabs */}
+          <div className="h-52 border-t border-zinc-700 shrink-0 overflow-hidden flex flex-col">
+            {/* Tab bar */}
+            <div className="flex items-center gap-0 bg-zinc-800 border-b border-zinc-700 shrink-0">
+              <button
+                onClick={() => setBottomTab('problems')}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  bottomTab === 'problems'
+                    ? 'text-zinc-100 border-b-2 border-blue-400'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                Problems
+              </button>
+              <button
+                onClick={() => setBottomTab('tsdf')}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  bottomTab === 'tsdf'
+                    ? 'text-zinc-100 border-b-2 border-blue-400'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                TSDF Budget
+              </button>
+            </div>
+
+            {/* Tab content */}
+            <div className="flex-1 overflow-hidden">
+              {bottomTab === 'problems' ? <ProblemsPanel /> : <TsdfVisualization />}
+            </div>
           </div>
         </main>
       </div>

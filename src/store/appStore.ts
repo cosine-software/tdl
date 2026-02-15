@@ -60,6 +60,32 @@ network "EXAMPLE" {
     participants: [AWACS-1, F16-LEAD]
   }
 
+  net "FIGHTER-TO-FIGHTER" {
+    net_number: 2
+    npg: NPG_A
+    stacked: false
+    tsdf: 15%
+    participants: [F16-LEAD]
+  }
+
+  net "PPLI-PRIMARY" {
+    net_number: 3
+    npg: NPG_2
+    stacked: true
+    stacking_level: 2
+    tsdf: 30%
+    participants: [AWACS-1, F16-LEAD]
+  }
+
+  net "PPLI-BACKUP" {
+    net_number: 4
+    npg: NPG_2
+    stacked: true
+    stacking_level: 2
+    tsdf: 20%
+    participants: [AWACS-1]
+  }
+
   messages {
     J2/2 { enabled: true, npg: NPG_2 }
     J3/2 { enabled: true, npg: NPG_9 }

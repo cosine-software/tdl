@@ -74,7 +74,7 @@ export function ExportImportToolbar() {
       {/* Import */}
       <button
         onClick={handleImportClick}
-        className="px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700 transition-colors"
+        className="px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700 transition-colors cursor-pointer"
         title="Import from JSON, XML, CSV, or TDL file"
       >
         Import
@@ -91,7 +91,7 @@ export function ExportImportToolbar() {
       <div className="relative">
         <button
           onClick={() => setShowExportMenu(!showExportMenu)}
-          className="px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700 transition-colors"
+          className="px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700 transition-colors cursor-pointer"
           title="Export configuration"
         >
           Export ▾
@@ -105,20 +105,20 @@ export function ExportImportToolbar() {
             <div className="absolute right-0 top-full mt-1 z-50 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl py-1 min-w-[160px]">
               <button
                 onClick={handleDownloadTdl}
-                className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+                className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors cursor-pointer"
               >
                 Download .tdl
               </button>
               <button
                 onClick={() => handleExport('json')}
-                className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+                className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors cursor-pointer"
                 disabled={!ast}
               >
                 Export as JSON
               </button>
               <button
                 onClick={() => handleExport('xml')}
-                className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+                className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors cursor-pointer"
                 disabled={!ast}
               >
                 Export as XML
