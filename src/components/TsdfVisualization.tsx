@@ -194,7 +194,7 @@ function TsdfBar({ terminal, maxTsdf }: { terminal: TerminalTsdf; maxTsdf: numbe
         />
 
         {/* Net segments */}
-        <div className="absolute inset-y-0 left-0 flex rounded-sm overflow-hidden">
+        <div className="absolute inset-0 flex rounded-sm overflow-hidden">
           {terminal.nets.map((net, i) => {
             const segWidth = (net.tsdf / barMax) * 100;
             return (

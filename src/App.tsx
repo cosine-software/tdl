@@ -1,15 +1,75 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { TdlEditor } from './components/TdlEditor';
 import { ProblemsPanel } from './components/ProblemsPanel';
 import { DocumentOutline } from './components/DocumentOutline';
 import { ExportImportToolbar } from './components/ExportImportToolbar';
 import { TsdfVisualization } from './components/TsdfVisualization';
+import { useAppStore } from './store/appStore';
+import { detectFormat, importAuto } from './engine/importer';
 
 export default function App() {
   const [bottomTab, setBottomTab] = useState<'problems' | 'tsdf'>('problems');
+  const [dragging, setDragging] = useState(false);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  const setSource = useAppStore((s) => s.setSource);
+
+  // Track nested dragenter/dragleave with a counter
+  const dragCountRef = useRef(0);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCountRef.current++;
+    if (dragCountRef.current === 1) setDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCountRef.current--;
+    if (dragCountRef.current <= 0) {
+      dragCountRef.current = 0;
+      setDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+    dragCountRef.current = 0;
+
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    const content = await file.text();
+    const format = detectFormat(content);
+
+    if (format === 'tdl') {
+      setSource(content);
+      setImportWarnings([]);
+    } else {
+      const result = importAuto(content);
+      if (result.source) {
+        setSource(result.source);
+      }
+      setImportWarnings(result.warnings);
+    }
+  }, [setSource]);
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-zinc-900 text-zinc-100 overflow-hidden">
+    <div
+      className="h-screen w-screen flex flex-col bg-zinc-900 text-zinc-100 overflow-hidden"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       {/* Top Bar */}
       <header className="flex items-center justify-between px-4 py-2 bg-zinc-800 border-b border-zinc-700 shrink-0">
         <div className="flex items-center gap-3">
@@ -74,6 +134,36 @@ export default function App() {
           </div>
         </main>
       </div>
+      {/* Drag-and-drop overlay */}
+      {dragging && (
+        <div className="fixed inset-0 z-50 bg-zinc-900/80 flex items-center justify-center pointer-events-none">
+          <div className="border-2 border-dashed border-blue-400 rounded-2xl px-12 py-10 text-center">
+            <div className="text-3xl mb-2">📄</div>
+            <div className="text-blue-400 font-semibold text-lg">Drop file to import</div>
+            <div className="text-zinc-500 text-xs mt-1">JSON, XML, CSV, or TDL</div>
+          </div>
+        </div>
+      )}
+
+      {/* Drop import warnings toast */}
+      {importWarnings.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-50 bg-amber-900/90 border border-amber-700 text-amber-200 rounded-lg p-3 max-w-sm text-xs shadow-xl">
+          <div className="flex items-center justify-between mb-1">
+            <span className="font-semibold">Import Warnings</span>
+            <button
+              onClick={() => setImportWarnings([])}
+              className="text-amber-400 hover:text-amber-200 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <ul className="list-disc list-inside space-y-0.5">
+            {importWarnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
